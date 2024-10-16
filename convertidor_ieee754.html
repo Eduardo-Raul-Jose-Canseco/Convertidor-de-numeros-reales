@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertidor de numeros reales</title>
+</head>
+
+<body>
+    <h1>Convertidor de numeros reales a representacion IEEE 754</h1>
+
+    <div>
+        <form>
+            <input type="float" id="numero" placeholder="Ingrese un numero">
+            <input type="button" value="calcular" onclick="convertir()">
+
+            <h2>Parte Entera</h2>
+            <table border="1" id="tabla1">
+                <thead>
+                    <tr>
+                        <th>Valor</th>
+                        <th>Divisor</th>
+                        <th>Cociente</th>
+                        <th>Residuo</th>
+                    </tr>
+                </thead>
+                <tbody id="resultadoEntero">
+                    
+                </tbody>
+            </table>
+        </form>
+
+            <h2>Parte Fraccionaria</h2>
+
+            <table border="1" id="tabla2">
+                <thead>
+                    <th>Valor</th>
+                    <th>Multiplicador</th>
+                    <th>Producto</th>
+                    <th>Digito</th>
+                </thead>
+                <tbody id="resultadoDecimal">
+                    
+                </tbody>
+            </table>
+
+
+            <h2>Representacion IEEE 754</h2>
+            <table border="1" id="tabla3">
+                <thead>
+                    <th>Signo</th>
+                    <th>Exponente + 127</th>
+                    <th>Mantisa</th>
+                </thead>
+                <body id="resultado">
+
+                </body>
+            </table>
+
+
+            <script>
+                function convertir(){
+                    const numero = parseFloat(document.getElementById("numero").value);
+                    const parteEntera = Math.floor(numero);
+                    const parteDecimal = numero - parteEntera;
+                    
+
+
+                    //tabla para entero
+                    const resultadoEntero = document.getElementById("resultadoEntero");
+                    resultadoEntero.innerHTML='';
+                    let entero = parteEntera;
+                    let pasosEnteros=[];
+
+                    while(entero>0){
+                        const residuo = entero%2;
+                        const cociente = Math.floor(entero/2);
+                        pasosEnteros.push(`<td>${entero}</td>  <td>${2}</td>  <td>${cociente}</td>  <td>${residuo}</td>`);
+                        entero=cociente;
+                    }
+
+                    pasosEnteros.reverse().forEach(paso => {
+                        resultadoEntero.innerHTML += `<tr>${paso}</tr>`;
+                    });
+
+
+
+                    //tabla para fraccion
+                    const resultadoDecimal = document.getElementById("resultadoDecimal");
+                    resultadoDecimal.innerHTML='';
+                    let decimal = parteDecimal;
+                    let pasosDecimal=[];
+
+                    while(decimal>0 && pasosDecimal.length<8){
+                        decimal*=2;
+                        const entero_decimal = Math.floor(decimal);
+
+                        pasosDecimal.push(`<td>${(decimal/2).toFixed(8)}</td>  <td>${2}</td>  <td>${decimal.toFixed(8)}</td>  <td>${entero_decimal}</td>`);
+                        decimal -= entero_decimal;
+                    }
+
+                    pasosDecimal.reverse().forEach(paso => {
+                        resultadoDecimal.innerHTML += `<tr>${paso}</tr>`;
+                    });
+
+
+                    //tabla para conversion
+
+                    let signo = (numero>0) ? 0:1;
+
+                    const tabla = document.getElementById("tabla1");
+                    const fila = tabla.getElementsByTagName("tr");
+                    const valores = [];
+                    
+
+                    for(let i=2; i<fila.length; i++){
+                        const columna = fila[i].getElementsByTagName("td");
+                        if(columna.length>1){
+                            valores.push(columna[3].innerText);
+                        }
+                    }
+
+                    
+                    const exp = valores.length + 127;
+                    const exp_binario = exp.toString(2);
+
+                    const tabla_resultado = document.getElementById("tabla3");
+                    const nueva_fila = tabla_resultado.insertRow();
+                    const columna_signo = nueva_fila.insertCell(0);
+                    const columna_exponente = nueva_fila.insertCell(1);
+                    const columna_mantisa = nueva_fila.insertCell(2);
+
+                    columna_signo.textContent = signo;
+                    columna_exponente.textContent = exp_binario;
+                    columna_mantisa.textContent = valores;
+
+                    
+                    
+
+
+                }
+            </script>
+
+        
+    </div>
+
+
+</body>
+</html>
